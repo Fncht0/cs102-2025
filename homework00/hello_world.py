@@ -3,6 +3,5 @@
 
 def text():
     """Возвращает строку"""
-    message = input()
-    a = message
+    a = "message"
     return a
