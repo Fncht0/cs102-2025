@@ -1,2 +1,6 @@
+'''Функция выводит строку'''
 def text():
-    return message
+    '''Возвращает строку'''
+    message = input()
+    a = message
+    return a
