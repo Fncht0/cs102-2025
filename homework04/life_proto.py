@@ -94,7 +94,6 @@ class GameOfLife:
                 if 0 <= nx < self.cell_width and 0 <= ny < self.cell_height:
                     neighbours.append(self.grid[ny][nx])
 
-        return neighbours
 
     def get_next_generation(self) -> Grid:
         new_grid = self.create_grid()
