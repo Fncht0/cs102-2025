@@ -51,7 +51,9 @@ def get_block(grid: tp.List[tp.List[str]], pos: tp.Tuple[int, int]) -> tp.List[s
     return [grid[r][c] for r in range(br, br + 3) for c in range(bc, bc + 3)]
 
 
-def find_empty_positions(grid: tp.List[tp.List[str]]) -> tp.Optional[tp.Tuple[int, int]]:
+def find_empty_positions(
+    grid: tp.List[tp.List[str]],
+) -> tp.Optional[tp.Tuple[int, int]]:
     for i, row in enumerate(grid):
         for j, value in enumerate(row):
             if value == ".":
