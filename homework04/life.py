@@ -15,7 +15,7 @@ class GameOfLife:
         self,
         size: tp.Tuple[int, int],
         randomize: bool = True,
-        max_generations: float = float("inf"),
+        max_generations: tp.Optional[float] = float("inf"),
     ) -> None:
         # Размер клеточного поля
         self.rows, self.cols = size
@@ -26,61 +26,52 @@ class GameOfLife:
         # Максимальное число поколений
         self.max_generations = max_generations
         # Текущее число поколений
-        self.generations = 0
+        self.generations = 1
 
     def create_grid(self, randomize: bool = False) -> Grid:
         grid: Grid = []
-
         for _ in range(self.rows):
             if randomize:
                 row = [random.randint(0, 1) for _ in range(self.cols)]
             else:
                 row = [0 for _ in range(self.cols)]
             grid.append(row)
-
         return grid
 
     def get_neighbours(self, cell: Cell) -> Cells:
         x, y = cell
         neighbours = []
-
-        for dx in (-1, 0, 1):
-            for dy in (-1, 0, 1):
-                if dx == 0 and dy == 0:
-                    continue
-
-                nx, ny = x + dx, y + dy
-
-                if 0 <= nx < self.rows and 0 <= ny < self.cols:
-                    neighbours.append(self.curr_generation[nx][ny])
-
+        for i in range(-1, 2):
+            for j in range(-1, 2):
+                if (x, y) != (x + i, y + j):
+                    new_x, new_y = x + i, y + j
+                    if 0 <= new_x < self.rows and 0 <= new_y < self.cols:
+                        neighbours.append(self.curr_generation[new_x][new_y])
         return neighbours
 
     def get_next_generation(self) -> Grid:
-        new_grid = self.create_grid()
-
-        for i in range(self.rows):
-            for j in range(self.cols):
-                neighbours = self.get_neighbours((i, j))
-                alive = self.curr_generation[i][j]
-                count = sum(neighbours)
-
-                if alive == 1 and count in (2, 3):
-                    new_grid[i][j] = 1
-                elif alive == 0 and count == 3:
-                    new_grid[i][j] = 1
-                else:
-                    new_grid[i][j] = 0
-
-        return new_grid
+        new_gen = self.create_grid(False)
+        for x in range(0, self.rows):
+            for y in range(0, self.cols):
+                neighbours = self.get_neighbours((x, y))
+                if self.curr_generation[x][y] and 2 <= sum(neighbours) <= 3:
+                    new_gen[x][y] = 1
+                elif not self.curr_generation[x][y] and sum(neighbours) == 3:
+                    new_gen[x][y] = 1
+        self.generations += 1
+        return new_gen
 
     def step(self) -> None:
+        if self.is_max_generations_exceeded:
+            return
+
         self.prev_generation = self.curr_generation
         self.curr_generation = self.get_next_generation()
-        self.generations += 1
 
     @property
     def is_max_generations_exceeded(self) -> bool:
+        if not self.max_generations:
+            return False
         return self.generations >= self.max_generations
 
     @property
@@ -90,17 +81,14 @@ class GameOfLife:
     @staticmethod
     def from_file(filename: pathlib.Path) -> "GameOfLife":
         with open(filename, "r") as f:
-            lines = [line.strip() for line in f.readlines()]
-
-        rows = len(lines)
-        cols = len(lines[0])
-
-        life = GameOfLife((rows, cols), randomize=False)
-        life.curr_generation = [[int(char) for char in line] for line in lines]
-        life.prev_generation = life.create_grid()
-        life.generations = 1
-
-        return life
+            lines = [line.strip() for line in f if line.strip()]
+            grid: Grid = [[int(c) for c in line] for line in lines]
+            rows = len(grid)
+            cols = len(grid[0])
+            game = GameOfLife(size=(rows, cols), randomize=False)
+            game.curr_generation = grid
+            game.prev_generation = game.create_grid(randomize=False)
+            return game
 
     def save(self, filename: pathlib.Path) -> None:
         with open(filename, "w") as f:
