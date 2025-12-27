@@ -79,22 +79,21 @@ class GameOfLife:
                 pygame.draw.rect(self.screen, color, rect)
 
     def get_neighbours(self, cell: Cell) -> Cells:
-        def get_neighbours(self, cell: Cell) -> Cells:
-            row, col = cell
-            neighbours = []
+        row, col = cell
+        neighbours = []
 
-            for dr in (-1, 0, 1):
-                for dc in (-1, 0, 1):
-                    if dr == 0 and dc == 0:
-                        continue
+        for dr in (-1, 0, 1):
+            for dc in (-1, 0, 1):
+                if dr == 0 and dc == 0:
+                    continue
 
-                    r = row + dr
-                    c = col + dc
+                r = row + dr
+                c = col + dc
 
-                    if 0 <= r < self.cell_height and 0 <= c < self.cell_width:
-                        neighbours.append(self.grid[r][c])
+                if 0 <= r < self.cell_height and 0 <= c < self.cell_width:
+                    neighbours.append(self.grid[r][c])
 
-            return neighbours
+        return neighbours
 
     def get_next_generation(self) -> Grid:
         new_grid = self.create_grid(randomize=False)
