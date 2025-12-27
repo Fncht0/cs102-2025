@@ -15,7 +15,7 @@ class GameOfLife:
         self,
         size: tp.Tuple[int, int],
         randomize: bool = True,
-        max_generations: tp.Optional[float] = float("inf"),
+        max_generations: float = float("inf"),
     ) -> None:
         # Размер клеточного поля
         self.rows, self.cols = size
@@ -26,7 +26,7 @@ class GameOfLife:
         # Максимальное число поколений
         self.max_generations = max_generations
         # Текущее число поколений
-        self.generations = 1
+        self.generations = 0
 
     def create_grid(self, randomize: bool = False) -> Grid:
         grid: Grid = []
@@ -81,7 +81,7 @@ class GameOfLife:
 
     @property
     def is_max_generations_exceeded(self) -> bool:
-        return self.generations > self.max_generations
+        return self.generations >= self.max_generations
 
     @property
     def is_changing(self) -> bool:
