@@ -1,4 +1,5 @@
 import curses
+import pathlib
 
 from life import GameOfLife
 from ui import UI
@@ -9,30 +10,29 @@ class Console(UI):
         super().__init__(life)
 
     def draw_borders(self, screen) -> None:
-        rows, cols = self.life.rows, self.life.cols
-
-        for x in range(cols + 2):
-            screen.addch(0, x, "#")
-            screen.addch(rows + 1, x, "#")
-
-        for y in range(1, rows + 1):
-            screen.addch(y, 0, "#")
-            screen.addch(y, cols + 1, "#")
+        screen.border()
 
     def draw_grid(self, screen) -> None:
-        for i in range(self.life.rows):
-            for j in range(self.life.cols):
-                char = "█" if self.life.curr_generation[i][j] == 1 else " "
-                screen.addch(i + 1, j + 1, char)
+        """Отобразить состояние клеток."""
+        for y in range(self.life.rows):
+            if y + 1 >= self.max_y - 1:
+                break
+            for x in range(self.life.cols):
+                if x + 1 >= self.max_x - 1:
+                    break
+                char = "#" if self.life.curr_generation[y][x] == 1 else " "
+                screen.addch(y + 1, x + 1, char)
 
     def run(self) -> None:
         screen = curses.initscr()
         curses.noecho()
         curses.cbreak()
-        screen.nodelay(True)
+        curses.curs_set(0)
         screen.keypad(True)
+        screen.nodelay(True)
 
         try:
+            self.max_y, self.max_x = screen.getmaxyx()
             while self.life.is_changing and not self.life.is_max_generations_exceeded:
                 screen.clear()
                 self.draw_borders(screen)
@@ -42,9 +42,11 @@ class Console(UI):
                 key = screen.getch()
                 if key == ord("q"):
                     break
+                elif key == ord("s"):
+                    self.life.save(pathlib.Path("life_save.txt"))
 
                 self.life.step()
-                curses.napms(100)
+                curses.napms(200)
 
         finally:
             curses.nocbreak()

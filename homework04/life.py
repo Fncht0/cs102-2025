@@ -50,6 +50,7 @@ class GameOfLife:
                     continue
 
                 nx, ny = x + dx, y + dy
+
                 if 0 <= nx < self.rows and 0 <= ny < self.cols:
                     neighbours.append(self.curr_generation[nx][ny])
 
